@@ -1,0 +1,125 @@
+var error_msg = "";
+
+$(document).ready(function() {
+	/**--------------------------------
+	 * jQuery validate add methods
+	 ----------------------------------*/
+	$.validator.addMethod("mobile",function(value, element) {
+		if(M.isMobile(value)){
+			return true;
+		}else{
+			return false;
+		}
+	}, "Please enter valid mobile no.");
+	
+	$.validator.addMethod("customConstructionCost", function(value, element, arg){
+		if(change_value==1){
+			return true;
+		}else{
+			return (value!="");
+		}
+	}, "Please enter cost of construction");
+	
+	$.validator.addMethod("customEMI", function(value, element, arg){
+		if(change_value_loanPurpose!=5){
+			return true;
+		}else{
+			return (value!="");
+		}
+	}, "Please enter emi");
+	
+	$.validator.addMethod("dateformatCheck",function(value, element) {
+		if(value.match(dateformatCheckExp)){
+			return M.isDate(value);
+		}else{
+			return false;
+		}
+	},"Please enter the date in valid format");
+	
+	$.validator.addMethod("stringCheck",function(value, element) {
+		if(value.match(stringCheckExp)){
+			return true;
+		}else{
+			return false;
+		}
+	},stringCheckErrorMessage);
+	
+	$.validator.addMethod("ageCheck",function(value, element) {
+		value = value.split("-");
+		var age = M.countAgeNew(value[0],value[1],value[2]);
+		return (parseFloat(age)>=parseFloat(min_age_limit) && parseFloat(age)<=parseFloat(max_age_limit))?true: false;
+	},"Age should be between "+min_age_year+" - "+max_age_year+" years");
+	
+	$.validator.addMethod("isPanCard", function(value, element, arg){
+		panCheck=value.substr(3,4);
+		if(!panCheck=='P'){
+			return false;
+		}else{
+			return M.isPAN(value);
+		}
+	}, "Please enter valid PAN");
+	
+	$.validator.addMethod("isPincode", function(value, element, arg){
+		return M.isPIN(value);
+	}, "Please enter valid pincode");
+	
+	$.validator.addMethod("extraValidateAccountNo",function(value, element) {
+		stringCheckExp1=/^[0-9]\d{10}$/;
+		if(value.match(stringCheckExp1)){
+			return true;
+		}else{
+			return false;
+		}
+	},"Please enter only numeric values.");
+	
+	$.validator.addMethod("aadhaarNumber", function(value){
+		if(value != undefined && value != ""){
+			if(value[0] == 0){
+				$.validator.messages.aadhaarNumber = "Aadhaar No never start with 0";
+				return false;
+			}else {
+				if(value.length!=12){
+					$.validator.messages.aadhaarNumber = "Aadhaar No not in correct format.";
+					return false;
+				}else{
+					return true;
+				}
+			}			
+		}else{
+			return true;
+		}
+	}, $.validator.messages.aadhaarNumber);
+	
+	$.validator.addMethod("uploadCheck",function(value, element, arg) {
+		var hidden_val = $("#"+arg).val();
+		return !(hidden_val=="" && value!=0);
+	}, "Please upload the required document");
+	
+	$.validator.addMethod("valueNotEquals", function(value, element, arg){
+		  return arg != value;
+	 }, "Please select an item!");
+	$.validator.addMethod("email",function(value, element) {
+		if(M.isEmail(value)){
+			return true;
+		}else{
+			return false;
+		}
+	}, "Please enter valid email id.");
+	$.validator.addMethod("emailConditional",function(value, element) {
+		if(value==""){
+			return true;
+		}else if(M.isEmail(value)!=null){
+			return true;
+		}else{
+			return false;
+		}
+	}, "Please enter valid email id.");
+	$.validator.addMethod("captcha",function(value, element) {
+		if(M.isEmail(value!="")){
+			return true;
+		}else{
+			return false;
+		}
+	}, "Please enter valid captcha.");
+});
+

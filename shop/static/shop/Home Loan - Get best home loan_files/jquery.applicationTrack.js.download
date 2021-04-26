@@ -1,0 +1,384 @@
+jQuery(document).ready(function(){
+	//secretKey=getSecretKey();
+	$("form#applicationTrack").validate({
+		onkeyup: false,
+		onfocusout: function (element) {
+	        $(element).valid();
+	    },
+	    onblur:function (element) {
+	        $(element).valid();
+	    },
+	    focusInvalid: false,
+	    invalidHandler: function(event, validator) {
+	    	var errors = validator.numberOfInvalids();
+	        if (errors) {
+	          var message = errors == 1
+	            ? 'You missed 1 field. It has been highlighted'
+	            : 'You missed ' + errors + ' fields. They have been highlighted';
+	          showPOPMsg('applicationStatusError',message, false);
+	        }
+	    },
+	    groups:{
+	    	'trackMobile':'trackIsdCode trackMobile',
+	    },
+		errorElement: "span",
+		errorPlacement: function(error, element) {
+			if($("#"+element.attr("id")).is("select")){
+				error.insertAfter($(element).parent());
+			}else if(element.attr("name")=="trackIsdCode" ||element.attr("name")=="trackMobile" ){
+				error.insertAfter("#trackMobile");
+			}else{
+				error.insertAfter(element);
+			}
+		}
+	});
+
+	jQuery("form#appStatus").validate({
+		onkeyup: false,
+		onfocusout: function (element) {
+	        jQuery(element).valid();
+	    },
+	    onblur:function (element) {
+	        jQuery(element).valid();
+	    },
+	    focusInvalid: false,
+	    invalidHandler: function(event, validator) {
+	    	var errors = validator.numberOfInvalids();
+	        if (errors) {
+	          var message = errors == 1
+	            ? 'You missed 1 field. It has been highlighted'
+	            : 'You missed ' + errors + ' fields. They have been highlighted';
+	          showPOPMsg('errorOTPMsg',message, false);
+	        }
+	    },
+	    errorElement: "span",
+		errorPlacement: function(error, element) {
+			if(element.attr("type")=="checkbox"){
+				return true;
+			}else {
+				error.insertAfter(element);
+			}
+		}
+	});
+	
+	jQuery('#trackBtn').on('click', function(){
+		var requestACall=$("input[name='appBtn']:checked").val();
+		$("#applicationStatusError").hide();
+		jsonObject = fetch_validation_object(1,10);
+		addValidationsRules(document.applicationTrack, jsonObject);
+		if($("form#applicationTrack").valid()){
+			if(requestACall!="CALLBACK"){
+				if($("#appLeadRefNumberAgri").is(":checked")){
+					if($("#appReferenceId").val()[0]==5){
+						
+					}else{
+						showPOPMsg('applicationStatusError',"Invalid reference number", false);
+						return false;
+					}
+				}else if($("#appLeadRefNumberRetail").is(":checked")){
+					if($("#appReferenceId").val()[0]==1 || $("#appReferenceId").val()[0]==2 || $("#appReferenceId").val()[0]==3 || $("#appReferenceId").val()[0]==4){
+						
+					}else{
+						showPOPMsg('applicationStatusError',"Invalid reference number", false);
+						return false;
+					}
+				}else if($("#appLeadRefNumberCredit").is(":checked")){
+//					if($("#appCardReferenceNumber").val()[0]==6){
+//						
+//					}else{
+//						showPOPMsg('applicationStatusError',"Invalid reference number", false);
+//						return false;
+//					}
+				}else{
+					showPOPMsg('applicationStatusError',"Invalid application stauts type", false);
+					return false;
+				}
+			}
+			if(requestACall!="CALLBACK"){
+				$(this).submit();
+			}else{
+				if($("#appRequestBtn").is(":checked")){
+					if($("#appReferenceId").val()[0]==1){
+					}else{
+						showPOPMsg('applicationStatusError',"Invalid reference number", false);
+						return false;
+					}
+				}
+		    	var paramData= getRequest('applicationTrack', 0);
+		    	if(!paramData){
+		    		var errorMsg = "Sorry for the inconvenience, please try again later.";
+		    		showPOPMsg('applicationStatusError',errorMsg, false);
+		    		return false;
+		    	}
+		    	var formdata = "params="+paramData;
+		    	formdata +="&requestIndex=1&loanTypeId=10";
+				if(uiType!=undefined && uiType!=""){
+					formdata += "&uiType="+uiType;
+				}
+				jQuery.ajax({
+			        type:'post',
+			        url: "application-status",
+			        data: formdata,
+			        beforeSend:function(){
+			        	showLoader();//show loader
+					},
+					complete:function(){
+						hideLoader(); //remove loader
+					},
+			        success:function(htmlContent){
+			        	if(htmlContent!=""){
+			            	var stringMessage = [];
+			            	stringMessage = htmlContent.split("|");
+			        		if(stringMessage[0] == "success"){
+			        			//secretKey=getSecretKey();
+			        			$("#beforeTrack_row_confirm").hide();
+			            		$("#afterTrack_row_confirm").show();
+			            		$("#formHide").show();
+				            	jQuery("#trackInputOtpWantUs").val('');
+				            	jQuery("#appTextCaptcha").val('');
+				            	refreshCaptcha('appStatusCapImage');
+				            	return false;
+			            	}else{
+			            		showPOPMsg('applicationStatusError','<b>Error: </b><em>'+stringMessage[1]+'</em>', false);
+			            		setTimeout(function(){
+			            			$("#applicationStatusError").hide();
+				        		}, 3000);
+			        	        return false;
+			            	}
+			        	}
+			        	return false;
+			        },
+			        error:function(data){
+			        	showPOPMsg('applicationStatusError','<b>Error: </b><em>Sorry for the inconvenience, Please click <a href='/'>here</a> to start again</em>', false);
+				        return false;
+			        }
+			    
+				});
+				return false;
+			}
+			setTimeout(function(){
+    			$("#applicationStatusError").hide();
+    		}, 300);
+		}
+	});
+	
+	jQuery('#mobile').on('blur', function(){
+		jQuery(".otpCodeSend").remove();
+		var mobile = jQuery(this).val();
+		globalMobile = mobile;
+		if(mobile == '' || mobile == null || mobile == undefined ){
+			return false;
+		}
+		if(!M.isMobile(mobile) ) {
+			if(!M.isMobile(mobile)){
+				jQuery(".otpCodeSend").remove();
+				jQuery("#mobile").after("<span class='otpCodeSend'><img src='"+BANK_IMAGE_FOLDER+"/cross.png'> Invalid Mobile No.</span>");
+			}
+		}
+	});
+	
+	jQuery('#appLeadRefNumberCredit').on('click', function(){
+		$('#loanTypeId').val(17);
+		var cardDiv = ''
+			+'<label>Enter card reference ID&nbsp;<span class="req">*</span></label>'
+			+'<input type="text" name="appCardReferenceNumber" maxlength="20" value="" id="appCardReferenceNumber" onkeydown="return M.isAlphaNumeric(event);" autocomplete="off" placeholder="XXXXXXXXXXXXXXXXXXXX" aria-invalid="false" class="form-control">'
+			
+		$("#applicationTrackRefNumber").html(cardDiv);
+	});
+	jQuery('#appLeadRefNumberRetail,#appLeadRefNumberAgri').on('click', function(){
+		$('#loanTypeId').val(10);
+		var cardDiv=''
+			+'<label>Enter your application ID&nbsp;<span class="req">*</span></label>'
+			+'<input type="text" name="appReferenceId" maxlength="12" value="" id="appReferenceId" onkeydown="return M.digit(event);" autocomplete="off" placeholder="XXXXXXXXXXXX" aria-invalid="false" class="form-control">'
+		jQuery("#applicationTrackRefNumber").html(cardDiv);
+   });
+	
+   jQuery('#appLeadRefNumberRetail').on('click', function(){
+		jQuery("#appRequestBtn").hide();
+   });
+   
+
+	jQuery(document).on("change","#appTrackBtn", function() {
+		$('#trackBtn').text('TRACK');
+		$('#appRequestBtn').prop('checked',false);
+		$('#SHOWANDHIDE').show();
+	});
+	jQuery(document).on("change","#appRequestBtn", function() {
+		$('#trackBtn').text('REQUEST A CALLBACK');
+		$('#appTrackBtn').prop('checked',false);
+		$('#SHOWANDHIDE').hide();
+		
+	});
+
+});
+
+
+jQuery("#trackConfirmOtpWantUs").on("click", function(){
+	removeDynamicLoader('trackConfirmOtpWantUs');
+	showDynamicLoader('trackConfirmOtpWantUs');
+	hidePOPMsg('applicationStatusError');
+	if(!validateWantUstoCallyouTrack(this, 3)){
+		//showPOPMsg('errorOTPMsg',"Enter OTP code", false);
+		removeDynamicLoader('trackConfirmOtpWantUs')
+		return false;
+	}
+	/*var formdata = "params="+getRequest('appStatus', 0);
+	formdata +="&requestIndex=5";*/
+	var paramData= getRequest('appStatus', 0);
+	if(!paramData){
+		var errorMsg = "Sorry for the inconvenience, please try again later.";
+		showPOPMsg('applicationStatusError',errorMsg, false);
+		return false;
+	}
+	var formdata = "params="+paramData;
+	formdata +="&requestIndex=5";
+	if(uiType!=undefined && uiType!=""){
+		formdata += "&uiType="+uiType;
+	}
+	jQuery.ajax({
+	    type: "POST",
+		url: "application-status",
+		data: formdata,
+		//headers : {"Accept-Encoding" : "gzip"},
+	    success:function(htmlContent){
+	    	removeDynamicLoader('trackConfirmOtpWantUs');
+	    	if(htmlContent==null || htmlContent ==undefined){
+	    		removeDynamicLoader('trackConfirmOtpWantUs');
+	    		showPOPMsg('applicationStatusError',SORRY_FOR_INCONVENIENCE, false);
+        		return false;
+        	}
+	    	var stringMessage = [];
+        	stringMessage = htmlContent.split("|");
+        	if(stringMessage[0]=="success"){
+        	//secretKey=getSecretKey();
+    		jQuery("#formHide").hide();
+    		var successMsg='<div class="thnk-msg">'
+			+'<h2><span class="smile-icon"></span><br>Thank you </h2>'
+			+'<p>Thank You for your interest. Our representative will contact you shortly.</p>'
+			+'</div>';
+    		$("#applicationStatusError").removeClass('error-msg-cbs')
+    		$("#formHideMsg").html(successMsg).show();
+    		jQuery("#resend_box").hide();
+        		setTimeout(function(){
+        			$('#appTrack').modal('hide');
+    			//jQuery(".close").trigger("click");
+    			reinitiateApplicationTrack();
+    		}, 5000);
+        		refreshCaptcha('HOMEPocapImage');
+        	}else if(stringMessage[0]=="error"){
+        		showPOPMsg('applicationStatusError',stringMessage[1], false);
+        		jQuery("input[name='"+stringMessage[2]+"']").addClass('error');
+        		return false;
+        	}
+        	
+	    },
+	    error:function(jqXHR, textStatus){
+	    	removeDynamicLoader('trackConfirmOtpWantUs');
+	    	showPOPMsg('applicationStatusError',SORRY_FOR_INCONVENIENCE, false);
+	    	return false;
+	    }
+	});
+	return false;
+});
+
+jQuery("#trackResendOtpWantUs").on("click", function(){
+	resendRemoveLoader('trackResendOtpWantUs');
+	resendShowLoader('trackResendOtpWantUs');
+	hidePOPMsg('applicationStatusError');
+		/*var formdata = "params="+getRequest('appStatus', 0);
+		formdata +="&requestIndex=4";*/
+		var paramData= getRequest('appStatus', 0);
+		if(!paramData){
+			var errorMsg = "Sorry for the inconvenience, please try again later.";
+			showPOPMsg('applicationStatusError',errorMsg, false);
+			return false;
+		}
+		var formdata = "params="+paramData;
+		formdata +="&requestIndex=4";
+		if(uiType!=undefined && uiType!=""){
+			formdata += "&uiType="+uiType;
+		}
+		jQuery.ajax({
+			type: "POST",
+			url: "application-status",
+			data: formdata,
+			//headers : {"Accept-Encoding" : "gzip"},
+			success:function(htmlContent){
+				resendRemoveLoader('trackResendOtpWantUs');
+				if(htmlContent==null || htmlContent ==undefined){
+				resendRemoveLoader('trackResendOtpWantUs');
+				showPOPMsg('applicationStatusError',SORRY_FOR_INCONVENIENCE, false);
+				return false;
+				}
+				var stringMessage = [];
+				stringMessage = htmlContent.split("|");
+				if(stringMessage[0]=="success"){
+					//secretKey=getSecretKey();
+					showPOPMsg('applicationStatusError',stringMessage[1], true);
+					setTimeout(function(){
+	        			$("#applicationStatusError").hide();
+	        		}, 2000);
+					refreshCaptcha('appStatusCapImage');
+				}else if(stringMessage[0]=="error"){
+					showPOPMsg('applicationStatusError',stringMessage[1], false);
+				}
+			},
+			error:function(jqXHR, textStatus){
+				resendRemoveLoader('trackResendOtpWantUs');
+				showPOPMsg('applicationStatusError',SORRY_FOR_INCONVENIENCE, false);
+				return false;
+			}
+		});
+	return false;
+});
+
+
+function  validateWantUstoCallyouTrack(src, typeOfValidation){
+	var flag = 0;
+	var willPost=1;
+	if(typeOfValidation == 3){
+		if(M.byId('trackInputOtpWantUs') != undefined) {
+			if(M.byId('trackInputOtpWantUs').value == 0 || M.byId('trackInputOtpWantUs').value == '' || M.byId('trackInputOtpWantUs').value.length!=6) {
+				M.byId('trackInputOtpWantUs').style.borderColor=C[5];
+				willPost=0;;
+				showPOPMsg('applicationStatusError',"Please enter OTP", false);
+	        }else{
+	        	 M.byId('trackInputOtpWantUs').style.borderColor=C[8];
+	        }
+	    }
+		if(willPost==1 && M.byId('appTextCaptcha') != undefined) {
+			if(M.byId('appTextCaptcha').value == 0 || M.byId('appTextCaptcha').value == '' || M.byId('appTextCaptcha').value.length!=6) {
+				M.byId('otpHomecaptcha').style.borderColor=C[5];
+				willPost=0;;
+				showPOPMsg('applicationStatusError',"Please enter Captcha", false);
+	        }else{
+	        	M.byId('appTextCaptcha').style.borderColor=C[8];
+	        }
+	    }
+	}
+	if(willPost){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+function reinitiateApplicationTrack(){
+	$('#appLeadRefNumberRetail').prop('checked','checked');
+	$('#appTrackBtn').prop('checked','checked');
+	$("#appReferenceId").val('').removeClass('error').next('span').remove();
+	$("#appCardReferenceNumber").val('').removeClass('error').next('span').remove();
+	$("#trackMobile").val('').removeClass('error').next('span').remove();
+	$("#formHide").hide();
+	$('#formHideMsg').hide();
+	$("#beforeTrack_row_confirm").show();
+	$("#afterTrack_row_confirm").hide();
+	$('#SHOWANDHIDE').show();
+	hidePOPMsg('applicationStatusError');
+}
+
+function showAppTrack(){
+	$("#appTrack").modal();
+	reinitiateApplicationTrack();
+	
+}

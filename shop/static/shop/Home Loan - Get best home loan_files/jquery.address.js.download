@@ -1,0 +1,782 @@
+function populateCitiesByStateId(src, cityDetails, formId, districtDetails, branchDetails){
+	if(src==undefined)return false;
+	var selVal=src.value;
+	if(cityDetails=="")return false;
+	disableAndRemoveErrorById(formId, src.id, true);
+	divErase4addCities=cityDetails[0];
+    if(divErase4addCities!=undefined && divErase4addCities!=''){
+    	jQuery("div[id="+divErase4addCities+"]").html('');
+    }
+    if(districtDetails!="" && districtDetails!=undefined && districtDetails !=null){
+    	divErase4addDistrict= districtDetails[0];
+        if(divErase4addDistrict!=undefined && divErase4addDistrict!=''){
+        	jQuery("div[id="+divErase4addDistrict+"]").html('');
+        }
+    }
+    if(branchDetails!="" && branchDetails!=undefined && branchDetails !=null){
+    	divErase4addBranch = branchDetails[0];
+	    if(divErase4addBranch!=undefined && divErase4addBranch!=''){
+	    	jQuery("div[id="+divErase4addBranch+"]").html('');
+	    }
+    }
+    var currentRow=src.parentNode;
+    var currentId = currentRow.id;
+    
+	if(selVal!=undefined && selVal!=null && selVal!="" && selVal>0){
+		$('#'+cityDetails[0]).html($('#html'+cityDetails[1]).html());
+		showLoaderInsideDropdown(elementId[0]);
+		citiesByStateId(src, cityDetails[1]);		
+		disableAndRemoveErrorById(formId, src.id, false);
+		removeLoaderInsideDropdown(elementId[0]);
+	}else{
+		disableAndRemoveErrorById(formId, src.id, false);
+		$("#"+formId+" #"+cityDetails[1]).val(0);
+		disableAndRemoveErrorById(formId, cityDetails[1], true);
+	}
+    return false;
+}
+
+function populateDistrictByStateId(src, stateId, districtDetails, branchDetails, formId){
+	if(src==undefined)return false;
+	if(districtDetails=="" || branchDetails=="")return false;
+	disableAndRemoveErrorById(formId, src.id, true);
+	divErase4addDistrict=districtDetails[0];
+	if(divErase4addDistrict!=undefined && divErase4addDistrict!=''){
+		if(loanTypeId==15 && divErase4addDistrict=='APPLOCATIONDISTRICT'){
+			jQuery("div[id="+divErase4addDistrict+"]").html('');
+		}else{
+			if(loanTypeId!=15){
+				jQuery("div[id="+divErase4addDistrict+"]").html('');
+			}else{
+				$('#'+districtDetails[1]).val(0);
+				disableAndRemoveErrorById(formId, districtDetails[1], true);
+			}
+		}
+	}
+	divErase4addBranch=branchDetails[0];
+	if(divErase4addBranch!=undefined && divErase4addBranch!=''){
+		jQuery("div[id="+divErase4addBranch+"]").html('');
+	}
+	var selVal=src.value;
+	if(selVal==undefined || selVal=="" || selVal==null || selVal=="0"){
+		disableAndRemoveErrorById(formId, src.id, false);
+		return false;
+	}
+	if(loanTypeId==15 || loanTypeId==5){
+		selVal = 9999999;
+	}
+	if(branchDetails[4]==0 && selVal!=9999999){
+		disableAndRemoveErrorById(formId, src.id, false);
+		return false;
+	}
+	elementId = districtDetails[1];
+	var isRACPC = 0;
+	if(loanTypeId==1){
+		if(jQuery("#loanPurpose").val()!=undefined){
+			loanPurposeId = parseInt(jQuery("#loanPurpose").val());
+			if(loanPurposeId==4){
+				isRACPC=1;
+			}
+		}
+	}
+	var isEdvantage=0;
+	var isScholar = 0;
+	var CountryofStudyId = jQuery("#CountryofStudyId").val();
+	var instCategory = jQuery("#instituteCat").val();
+	var preferredLoc =jQuery("#preferredLocation").val();
+	var appresidenttype =jQuery("#residentType").val();
+	var co_residentType1 =jQuery("#co_residentType1").val();
+	var co_residentType2 = jQuery("#co_residentType2").val();
+	var loanPurpose=jQuery("#loanPurpose").val();
+	var urlData="";
+	if(stateId==''){
+		stateId=0;
+	}
+	var isNRI=0;
+	if(BANK_ID == BANK_ID_SBI){
+		if(appElTypeId==1){
+			instCategory="AA";
+		}else{
+			instCategory = jQuery("#instituteCat").val();
+		}
+	}
+	if(BANK_ID == BANK_ID_SBI){
+		if(loanType == 1 && loanPurpose!=5){
+			if(appresidenttype==2 || co_residentType1==2 || co_residentType2==2){
+				if(isRACPC==1){
+					isNRI = 0;
+				}else{
+					if(selVal != 9999999){
+						isNRI = 1;
+					}
+				}
+			}
+		}
+		if(loanTypeId ==4){
+			if(isEligibleForEdvantage && (elementId == 'appEdvantageCityId' || elementId == 'appEdvantageDistrictId'  || elementId == 'appEdvantageBranchId')){
+				isEdvantage = 1;
+			}
+		}
+	}
+	if(CountryofStudyId ==1 && (instCategory == "AA" || instCategory == "A" || instCategory == "B" || instCategory == "C") ){
+		if(elementId == 'districtId'){
+			isScholar= 1;
+		}
+		if(appElTypeId==1){
+			urlData =  "stateId="+stateId+"&cityId="+selVal+"&isRACPC="+isRACPC+"&isScholar="+isScholar
+			+"&preferredLocation="+(jQuery("#preferredLocation").val()==undefined?0:jQuery("#preferredLocation").val())
+			+"&instituteName="+($('#instituteId option:selected').text()==undefined?"":$('#instituteId option:selected').text()); 
+		}
+		else {
+			if(preferredLoc != undefined && preferredLoc == 2){
+				urlData =  "stateId="+stateId+"&cityId="+selVal+"&isRACPC="+isRACPC+"&isScholar="+isScholar
+				+"&preferredLocation="+(jQuery("#preferredLocation").val()==undefined?0:jQuery("#preferredLocation").val())
+				+"&instituteName="+(jQuery("#instituteName").val()==undefined?"":jQuery("#instituteName").val()); 
+			}else{
+				urlData =  "stateId="+stateId+"&cityId="+selVal+"&isRACPC="+isRACPC+"&isScholar="+isScholar
+				+"&preferredLocation="+(jQuery("#preferredLocation").val()==undefined?0:jQuery("#preferredLocation").val()+"&isNRI="+isNRI);
+			}
+		}
+	}else{
+		urlData =  "stateId="+stateId+"&cityId="+selVal+"&isRACPC="+isRACPC+"&isScholar="+isScholar
+		+"&preferredLocation="+(jQuery("#preferredLocation").val()==undefined?0:jQuery("#preferredLocation").val());
+	}
+	if(loanType!=undefined){
+		urlData +="&loanTypeId="+loanType;
+	}
+	if(isNRI!=undefined ){
+		urlData +="&isNRI="+isNRI;
+	}
+	if(isEdvantage != undefined){
+		urlData +="&isEdvantage="+isEdvantage;
+	}
+	if(isAgri != undefined){
+		urlData +="&isAgri="+isAgri;
+	}
+	if(selVal!=undefined && selVal!=null && selVal!="" && selVal>0){
+		 jQuery.ajax({
+	        type:'post',
+	        url:"localityordistrictbystateandcityid",
+	        data:urlData,
+	        dataType:'json',
+	        //headers : {"Accept-Encoding" : "gzip"},
+	        success:function(json){
+	        	if(json!=null && json != undefined && json != ''){
+	        		if(json.populate == "success"){
+	        			disableAndRemoveErrorById(formId, src.id, false);
+	        		}else if(json.populate == "district"){
+	        		    divErase4addDistrict='';
+	        		    var currentRow='';
+	        		    $("#PREFERREDLOCATIONBRANCH").html('');
+	        		    $("#PREFERREDLOCATIONDISTRICT").html('');
+	        		   if(loanTypeId==1 || loanTypeId==2 || loanTypeId ==3 || loanTypeId == 15){
+	        			   if(districtDetails[1]=='appPickupDistrictId' || districtDetails[1]=='appOfficeDistrictId'){
+	        				   currentRow=src.parentNode.parentNode;
+		        		    }else{
+		        		    	currentRow=src.parentNode.parentNode;
+		        		    }
+	        		   }
+	        		   if(loanTypeId==4){
+	        			   if( districtDetails[1]=='appPickupDistrictId' || districtDetails[1]=='appOfficeDistrictId' ){
+	        				   currentRow=src.parentNode.parentNode;
+		        		    }else{
+		        		    	currentRow=src.parentNode.parentNode;
+		        		    }
+	        		   }
+	        		    var currentId = currentRow.id;
+	        		    divErase4addDistrict = districtDetails[0];//"LOCATIONDISTRICT";
+	        		    if(districtDetails[1]=='appPickupDistrictId' || districtDetails[1]=='appOfficeDistrictId'){
+	        		    	if(statuspage){
+	        		    	}else{
+	        		    	}
+	        		    }else{
+	        		    }
+	        				        			
+	        			if(BANK_ID == BANK_ID_SBI){
+	        				if(districtDetails[5]==undefined){
+	    						elementMandatory = [1];
+	    					}else{
+	    						elementMandatory = districtDetails[5];
+	    					}
+	    				}else{
+	    					if(districtDetails[4]==undefined){
+	    						elementMandatory = [1];
+	    					}else{
+	    						elementMandatory = districtDetails[4];
+	    					}
+	        			}
+	        			if (!isAppPickupDistrictIdRemoved && isDsrPage && (loanTypeId == 2 || loanTypeId == 3 || loanTypeId == 4) && elementId == 'appPickupDistrictId') {
+        					if (divErase4addDistrict != undefined && divErase4addDistrict != '') {
+        						$("div[id="+ divErase4addDistrict+ "]").html('');
+        					}
+        					isAppPickupDistrictIdRemoved = true;
+	        			}
+	        			if (!isAppOfficeDistictIdRemoved && isLoanThankYouPage && elementId == 'appOfficeDistrictId') { 
+        					if (divErase4addDistrict != undefined && divErase4addDistrict != '') {
+        						$("div[id="+ divErase4addDistrict+ "]").html('');
+        					}
+        					isAppOfficeDistictIdRemoved = true;
+        					isLoanThankYouPage = true;
+	        			}
+	        			$('#'+districtDetails[0]).html($('#html'+districtDetails[1]).html());
+	        			showLoaderInsideDropdown(elementId[0]);
+            			populateCitiesBasedOnStateId(districtDetails[1], json.districts,0);
+            			disableAndRemoveErrorById(formId, src.id, false);
+            			removeLoaderInsideDropdown(elementId[0]);
+	        		}else if(json.populate == "branch" && branchDetails[4]==1){
+	        			$('#'+branchDetails[0]).html($('#html'+branchDetails[1]).html());
+	        			showLoaderInsideDropdown(elementId[0]);
+        				populateDropdownFromJSONArrayList(branchDetails[1], json.branches, 0);
+        				disableAndRemoveErrorById(formId, src.id, false);
+            			removeLoaderInsideDropdown(elementId[0]);
+	        			if(preferredLoc != undefined && preferredLoc == 2){
+	        				jQuery('#branchId').val(json.branches[0].key);
+	        			}
+	        		}else{
+	        			disableAndRemoveErrorById(formId, src.id, false);
+	        			removeLoaderInsideDropdown(elementId[0]);
+	        			return false;
+	        		}
+	        	}else{
+	        		return false;
+	        	}
+	        },
+	        error:function(data){
+	        	disableAndRemoveErrorById(formId, src.id, false);
+	        }
+	    });
+	}else{
+		disableAndRemoveErrorById(formId, src.id, false);
+	}
+    return false;
+}
+
+function populatebranchByDistrictId(src, stateId, districtId, branchDetails, formId){
+	if(src==undefined)return false;
+	if(branchDetails=="" || districtId == undefined || stateId == undefined)return false;
+	if(branchDetails[4]==0){
+		return false;
+	}
+	disableAndRemoveErrorById(formId, src.id, true);
+	var selVal=src.value;
+	divErase4addBranch = branchDetails[0];
+    if(divErase4addBranch!=undefined && divErase4addBranch!=''){
+    	jQuery("div[id="+divErase4addBranch+"]").html('');
+    }
+    divErase4addBranch='';
+    var currentRow=src.parentNode.parentNode;
+    var currentId = currentRow.id;
+    elementId=branchDetails[1];
+    
+    if(stateId==''){
+		stateId=0;
+	}
+    var CountryofStudyId = jQuery("#CountryofStudyId").val();
+    var preferredLoc =jQuery("#preferredLocation").val();
+	var instCategory = jQuery("#instituteCat").val();
+	var appresidenttype =jQuery("#residentType").val();
+	var co_residentType1 =jQuery("#co_residentType1").val();
+	var co_residentType2 = jQuery("#co_residentType2").val();
+	var loanPurpose=jQuery("#loanPurpose").val();
+	 var isRACPC = 0;
+	    if(BANK_ID == BANK_ID_SBI){
+	    	if(loanTypeId==1 && (elementId == 'preferredCity' || elementId == 'preferredBranch')){
+				if(jQuery("#loanPurpose").val()!=undefined){
+					loanPurposeId = parseInt(jQuery("#loanPurpose").val());
+					if(loanPurposeId==4){
+						isRACPC=1;
+					}
+				}
+			}
+		}
+	var isNRI=0;
+	if(BANK_ID == BANK_ID_SBI){
+		if(loanTypeId == 1 && loanPurpose!=5){
+			if(appresidenttype==2 || co_residentType1==2 || co_residentType2==2){
+				isNRI = 1;
+			}
+		}
+		if(loanTypeId ==4){
+			if(isEligibleForEdvantage && (elementId == 'appEdvantageCityId' || elementId == 'appEdvantageDistrictId'  || elementId == 'appEdvantageBranchId')){
+				isEdvantage = 1;
+			}
+		}
+	}
+	var isScholar= 0;
+	if(BANK_ID == BANK_ID_SBI){
+		isScholar= 1;
+	}
+	var urlData = "stateId="+stateId+"&districtId="+districtId+"&isRACPC="+isRACPC;
+	if(CountryofStudyId ==1 && (instCategory == "AA" || instCategory == "A" || instCategory == "B" || instCategory == "C") ){
+		urlData = "stateId="+stateId+"&districtId="+districtId+"&isRACPC="+isRACPC+"&isScholar="+isScholar;
+		var selId= jQuery("#preferredLocation").val();
+		if(selId!=undefined && selId==2){
+			var instiName =$('#instituteId option:selected').text();
+			if(instiName!=undefined && instiName!= ""){
+				urlData = "stateId="+stateId+"&districtId="+districtId+"&isRACPC="+isRACPC+"&isScholar="+isScholar+"&institutdeName="+instiName;
+			}
+		}
+	}
+	if(loanType!=undefined){
+		urlData +="&loanTypeId="+loanType;
+	}
+	if(isNRI!=undefined ){
+		urlData +="&isNRI="+isNRI;
+	}
+	if(isEdvantage != undefined){	
+		urlData +="&isEdvantage="+isEdvantage;
+	}
+	if(isAgri != undefined){	
+		urlData +="&isAgri="+isAgri;
+	}
+	if(selVal!=undefined && selVal!=null && selVal!="" && selVal>0){
+    	var innerHtml='';
+		 jQuery.ajax({
+		        type:'post',
+		        url:"branchByStateId",
+		        data: urlData,
+		        dataType:'json',
+		        success:function(json){
+		        	showLoaderInsideDropdown(src.id);
+		        	if(json.cities.length>0){
+		        		$('#'+branchDetails[0]).html($('#html'+branchDetails[1]).html());
+	        			populateCitiesBasedOnStateId(branchDetails[1],json.cities,1);
+		        	}
+		        	disableAndRemoveErrorById(formId, src.id, false);
+        			removeLoaderInsideDropdown(src.id);
+        			if(preferredLoc != undefined && preferredLoc == 2){
+        				jQuery('#branchId').val(json.cities[0].key);
+        			}
+		        },
+		        error:function(data){
+		        	disableAndRemoveErrorById(formId, src.id, false);
+		        }
+		    });
+    		
+    }else{
+    	disableAndRemoveErrorById(formId, src.id, false);
+    }
+    return false;
+}
+
+function citiesByStateId(src,elementId, elementPincodeId){
+	if(src==undefined||src.options==undefined||!src.options.length){
+		disableById(elementId,true);
+		return false;
+	}
+	if(src.value==0){
+		disableById(elementId, true);
+		return false;
+	}
+	
+	stateId=src.value;
+	if(stateId<=0 || stateId==''){
+		disableById(elementId,true);
+		return false;
+	}
+	
+	disableById(elementId,false);
+	
+	if(stateId<=0 || stateId==''){
+		return false;
+	}
+	
+	
+	var CountryofStudyId = jQuery("#CountryofStudyId").val();
+    var preferredLoc =jQuery("#preferredLocation").val();
+	var instCategory = jQuery("#instituteCat").val();
+	var appresidenttype =jQuery("#residentType").val();
+	var co_residentType1 =jQuery("#co_residentType1").val();
+	var co_residentType2 = jQuery("#co_residentType2").val();
+	var loanPurpose=jQuery("#loanPurpose").val();
+	var isRACPC = 0;
+	if(BANK_ID == BANK_ID_SBI){
+		if(loanTypeId==1 && elementId == 'preferredCity'){
+			isRACPC = (jQuery("#loanPurpose").val()==4?1:0);
+		}
+	}
+	var isNRI=0;
+	if(BANK_ID == BANK_ID_SBI){
+		if(loanTypeId == 1 && loanPurpose!=5){
+			if(appresidenttype==2 || co_residentType1==2 || co_residentType2==2){
+				if(isRACPC==1){
+					isNRI = 0;
+				}else{
+					isNRI = 0;//1;
+				}
+			}
+		}
+		if(loanTypeId ==4){
+			if(isEligibleForEdvantage && (elementId == 'appEdvantageCityId' || elementId == 'appEdvantageDistrictId'  || elementId == 'appEdvantageBranchId')){
+				isEdvantage = 1;
+			}
+		}
+	}
+	var isScholar=0;
+	var isEdvantage=0;
+	if(BANK_ID == BANK_ID_SBI){		
+		if(CountryofStudyId ==1 && (instCategory == "AA" || instCategory == "A" || instCategory == "B" || instCategory == "C") ){
+			isScholar=1;
+		}
+		if(loanTypeId ==4){
+			if(isEligibleForEdvantage && (elementId == 'appEdvantageCityId' || elementId == 'appEdvantageDistrictId'  || elementId == 'appEdvantageBranchId')){
+				isEdvantage = 1;
+				
+			}
+		}
+	}
+
+	urlData = "stateId="+stateId+"&isRACPC="+isRACPC+"&isScholar="+isScholar;
+	if(loanType!=undefined){
+		urlData +="&loanTypeId="+loanType;
+	}
+	if(isNRI!=undefined ){
+		urlData +="&isNRI="+isNRI;
+	}
+	if(isEdvantage != undefined){
+		urlData +="&isEdvantage="+isEdvantage;
+	}
+	
+	jQuery.ajax({
+        type:'post',
+        url:"citybystateid",
+        data: urlData,
+        dataType:'json',
+        //headers : {"Accept-Encoding" : "gzip"},
+        success:function(json){
+            populateCities(json.cities,0,elementId, isRACPC);
+        },
+        error:function(data){
+        	disableById(elementId, false);
+        },
+        async:false
+    });
+}
+
+function populateCitiesBasedOnStateId(elementId, cities, selectedCity){
+	if(M.byId('localitiy')!=undefined){
+		jQuery('#localitiy option:first-child').attr("selected", "selected");
+		jQuery('#localitiy').attr("disabled", true);
+	}
+	if(cities!=undefined && cities!=null && cities.length>=1){
+		disableById(elementId, false);
+		var intitalSelection="";
+		if(elementId == "preferredState" || elementId == "stateId"){
+			intitalSelection = "Select state";
+		}else if(elementId == "preferredCity" || elementId == "cityId" || elementId == "workCityId"){
+			intitalSelection = "Select city";
+		}else if(elementId == "appPermanentDistrictId" || elementId == "preferredDistrict" ||elementId =="residentDistrictId" || elementId =="districtId" 
+			|| elementId =="appDistrictId" || elementId =="workDistrictId" || elementId =="propertyDistrictId" || elementId =="appPropertyDistrictId" 
+			|| elementId =="appOfficeDistrictId" || elementId =="appCoapplicant1DistrictId" || elementId =="appCoapplicant2DistrictId" 
+			|| elementId=="appCoapplicantDistrictId" ||elementId == "appEdvantageDistrictId" || elementId=="appPickupDistrictId" 
+			||elementId=="appCoapplicantDistrictId" ||elementId == "appEdvantageDistrictId" || elementId=="appPickupDistrictId" 
+			|| elementId=="appResidentDistrictId" || elementId=="appCoAppDistrict1" || elementId=="appCoAppDistrict2" 
+			|| elementId=="appCoAppDistrict3" || elementId=="appCoAppDistrict4" || elementId=="pensionPayingDistrictId" || elementId=="preferredDistrictId" ){ 
+			intitalSelection = "Select district";
+		}else if(elementId == "preferredBranch" || elementId == "branchId" || elementId == "workBranchId" || elementId == "appBranchId"  || elementId == "propertyBranchId" || elementId == "appEdvantageBranchId" || elementId=="preferredBranchId"  || elementId=="pensionPayingBranchId" ){
+			intitalSelection = "Select branch";
+		} else if(elementId=="loanWithBankId"){
+			intitalSelection = "Select bank";
+		}else if(elementId=="preferredLocality"){
+			intitalSelection = "Select locality";
+		}
+		jQuery( '#'+elementId ).empty();
+		var selected="";
+		var option='<option value="0">'+intitalSelection+'</option>';
+		jQuery('#'+elementId).append(option);
+		
+		jQuery('#'+elementId).removeAttr("disabled");
+		for(var index=0; index<cities.length;index++){
+			city = cities[index];
+			if(city.cityId == selectedCity){
+				selected="selected=\'selected\'";
+			}else{
+				selected="";
+			}
+			option = '<option value="'+city.key+'" '+selected+' >'+city.value+'</option>';
+			jQuery('#'+elementId).append(option);
+		}
+	}else{
+		option = '<option value="0" >No Records</option>';
+		jQuery('#'+elementId).append(option);
+		jQuery('#'+elementId).attr("disabled", true);
+		jQuery('#'+elementId).addClass("disabledFields");
+	}
+}
+
+function populateCities(cities, selectedCity, elementId, isRACPC){
+	jQuery( '#'+elementId ).empty();
+	if(cities.length>=1){
+		var option = "";
+		if(elementId=='appDistrictId' || elementId=='appOfficeDistrictId' || elementId=='appPickupDistrictId' || elementId == 'appEdvantageDistrictId'){
+			option = '<option value="0">Select district</option>';
+		}else{
+			option  = '<option value="0">Select city</option>';
+		}
+		jQuery('#'+elementId).append(option);
+		var selected="";
+		var previouscityCategory = "C";
+	    var localcityCategory = "A";
+	    var flag=0;
+		for(var index=0; index<cities.length;index++){
+			var city = cities[index];
+			localcityCategory = city.cityCategory;
+			if(city.key == 9999999  && elementId!='appDistrictId'){
+				previouscityCategory="Z";
+				option = '<optgroup label="--------------">';
+				jQuery('#'+elementId).append(option);
+				flag++;
+			}
+			if(city.cityId == selectedCity){
+				selected="selected=\'selected\'";
+			}else{
+				selected="";
+			}
+			option = '<option value="'+city.key+'" '+selected+' >'+city.value+'</option>';
+			jQuery('#'+elementId).append(option);
+		}
+		
+		if(elementId=='appDistrictId'){
+			
+		}else{
+			
+		}	
+	}else{
+		option = '<option value="0" >No Records</option>';
+		jQuery('#'+elementId).append(option);
+		jQuery('#'+elementId).attr("disabled", true);
+		jQuery('#'+elementId).addClass("disabledFields");
+	}
+}
+
+function generateElementSelect(elementId, elementName, elementType, className, functionName){
+	var elementOuterHTML='';
+	if(elementType == 2){
+		elem=M.create("select");
+		elem.name=elementName;
+		elem.setAttribute("id",elementId);
+		if(functionName != undefined && functionName != null && functionName != ""){
+			if(loanTypeId==2 && elementId=='appOfficeCityId'){
+
+			}else if(loanTypeId==2 && elementId=='appPermanentCityId'){
+				
+			}else{
+				elem.setAttribute("onChange",functionName);
+			}
+		}
+		elem.setAttribute("autocomplete","off");
+		if(className != undefined && className != null && className != ""){
+			elem.className=className;
+		}else{
+			elem.className="w167";
+		}
+	}
+	elementOuterHTML = elem;
+	return elementOuterHTML;
+}
+
+
+function populateAgriDistrictByStateId(src, formId, districtDetails, subDistrictDetails, villageDetails){
+	if(src==undefined)return false;
+	if(subDistrictDetails=="" || villageDetails=="")return false;
+	disableByFormAndId(formId, src.id, true);
+    if(subDistrictDetails[0]!=undefined && subDistrictDetails[0]!=''){
+    	disableByFormAndId(formId, subDistrictDetails[0], true);
+    }
+    if(villageDetails[0]!="" && villageDetails[0]!=undefined){
+    	disableByFormAndId(formId, villageDetails[0], true);
+    }
+    var currentRow=src.parentNode;
+    var currentId = currentRow.id;
+	var selVal=src.value;
+	if(selVal!=undefined && selVal!=null && selVal!="" && selVal>0){
+		//$('#'+subDistrictDetails[0]).html($('#html'+subDistrictDetails[0]).html());
+		showLoaderInsideDropdown(districtDetails[0]);
+		districtByStateId(src, $("#appResidentStateId").val(), districtDetails[0]);		
+		disableByFormAndId(formId, src.id, false);
+		removeLoaderInsideDropdown(districtDetails[0]);
+	}else{
+		disableByFormAndId(formId, src.id, false);
+	}
+    return false;
+}
+function districtByStateId(src, stateId, districtId){
+	var urlData = "stateId="+stateId;
+	if(loanType!=undefined){
+		urlData +="&loanTypeId="+loanType;
+	}
+	jQuery.ajax({
+        type:'post',
+        url:"getAgriDistrict",
+        data: urlData,
+        dataType:'json',
+        //headers : {"Accept-Encoding" : "gzip"},
+        success:function(json){
+        	populateList(json.data, 'Select district', districtId, 0);
+        	disableById(districtId, false);
+        },
+        error:function(data){
+        	disableById(districtId, false);
+        },
+        async:false
+    });
+}
+
+function populateSubdistrictByDistrictId(src, formId, districtDetails, subDistrictDetails, villageDetails){
+	if(src==undefined)return false;
+	if(subDistrictDetails=="" || villageDetails=="")return false;
+	disableAndRemoveErrorById(formId, src.id, true);
+    if(subDistrictDetails[0]!=undefined && subDistrictDetails[0]!=''){
+    	disableAndRemoveErrorById(formId, subDistrictDetails[0], true);
+    }
+    if(villageDetails[0]!="" && villageDetails[0]!=undefined){
+    	disableAndRemoveErrorById(formId, villageDetails[0], true);
+    }
+    var currentRow=src.parentNode;
+    var currentId = currentRow.id;
+	var selVal=src.value;
+	if(selVal!=undefined && selVal!=null && selVal!="" && selVal>0){
+		//$('#'+subDistrictDetails[0]).html($('#html'+subDistrictDetails[0]).html());
+		showLoaderInsideDropdown(subDistrictDetails[0]);
+		subDistrictByDistrictId(src, $('#'+districtDetails[0]).val(), subDistrictDetails[0]);		
+		disableAndRemoveErrorById(formId, src.id, false);
+		removeLoaderInsideDropdown(subDistrictDetails[0]);
+	}else{
+		disableAndRemoveErrorById(formId, src.id, false);
+	}
+    return false;
+}
+function subDistrictByDistrictId(src, districtId, subdistrictId){
+	var urlData = "districtId="+districtId;
+	if(loanType!=undefined){
+		urlData +="&loanTypeId="+loanType;
+	}
+	jQuery.ajax({
+        type:'post',
+        url:"subDistrictByDistrictId",
+        data: urlData,
+        dataType:'json',
+        //headers : {"Accept-Encoding" : "gzip"},
+        success:function(json){
+        	populateList(json.data, 'Select subdistrict', subdistrictId, 0);
+        	disableById(subdistrictId, false);
+        },
+        error:function(data){
+        	disableById(districtId, false);
+        },
+        async:false
+    });
+}
+function populateVillageBySubdistrictId(src, formId, subDistrictDetails, villageDetails){
+	if(src==undefined)return false;
+	if(villageDetails=="")return false;
+	disableAndRemoveErrorById(formId, src.id, true);
+    if(villageDetails[0]!="" && villageDetails[0]!=undefined){
+    	disableAndRemoveErrorById(formId, villageDetails[0], true);
+    }
+    var currentRow=src.parentNode;
+    var currentId = currentRow.id;
+	var selVal=src.value;
+	if(selVal!=undefined && selVal!=null && selVal!="" && selVal>0){
+		//$('#'+villageDetails[0]).html($('#html'+villageDetails[0]).html());
+		showLoaderInsideDropdown(villageDetails[0]);
+		villageBysubdistrictId(src, $('#'+subDistrictDetails[0]).val(), villageDetails[0]);		
+		disableAndRemoveErrorById(formId, src.id, false);
+		removeLoaderInsideDropdown(villageDetails[0]);
+	}else{
+		disableAndRemoveErrorById(formId, src.id, false);
+	}
+    return false;
+}
+function villageBysubdistrictId(src, subdistrictId,  villageId){
+	var urlData = "subdistrictId="+subdistrictId;
+	if(loanType!=undefined){
+		urlData +="&loanTypeId="+loanType;
+	}
+	jQuery.ajax({
+        type:'post',
+        url:"villageBysubdistrictId",
+        data: urlData,
+        dataType:'json',
+        //headers : {"Accept-Encoding" : "gzip"},
+        success:function(json){
+        	populateList(json.data, 'Select village', villageId, 0);
+        	disableById(villageId, false);
+        },
+        error:function(data){
+        	disableById(subdistrictId, false);
+        },
+        async:false
+    });
+}
+function populateList(list, fistIndex, elementId, selectedValue){
+	$( '#'+elementId ).empty();
+	if(list.length>=1){
+		var selected="";
+		var option='<option value="0">'+fistIndex+'</option>';
+		$('#'+elementId).append(option);
+		for(var index=0; index<list.length;index++){
+			optionValue = list[index];
+			if(optionValue.key == selectedValue){
+				selected="selected=\'selected\'";
+			}else{
+				selected="";
+			}
+			option = '<option value="'+optionValue.key+'" '+selected+' >'+optionValue.value+'</option>';
+			jQuery('#'+elementId).append(option);
+		}
+	}else{
+		option = '<option value="0" >No Records</option>';
+		jQuery('#'+elementId).append(option);
+		jQuery('#'+elementId).attr("disabled", true);
+		jQuery('#'+elementId).addClass("disabledFields");
+	}
+}
+
+
+function populateAgriCity(src, formId, cityDetails,districtDetails, subDistrictDetails, villageDetails){
+	if(src==undefined)return false;
+	if(cityDetails=="" || districtDetails=="" || subDistrictDetails=="" || villageDetails=="")return false;
+	disableByFormAndId(formId, src.id, true);
+	if(districtDetails[0]!=undefined && districtDetails[0]!=''){
+    	disableByFormAndId(formId, districtDetails[0], true);
+    }
+	if(subDistrictDetails[0]!=undefined && subDistrictDetails[0]!=''){
+    	disableByFormAndId(formId, subDistrictDetails[0], true);
+    }
+    if(villageDetails[0]!="" && villageDetails[0]!=undefined){
+    	disableByFormAndId(formId, villageDetails[0], true);
+    }
+    var currentRow=src.parentNode;
+    var currentId = currentRow.id;
+	var selVal=src.value;
+	if(selVal!=undefined && selVal!=null && selVal!="" && selVal>0){
+		//$('#'+subDistrictDetails[0]).html($('#html'+subDistrictDetails[0]).html());
+		showLoaderInsideDropdown(cityDetails[0]);
+		cityDetails($('#'+src.id).val(), cityDetails[0]);		
+		disableByFormAndId(formId, src.id, false);
+		removeLoaderInsideDropdown(cityDetails[0]);
+	}else{
+		disableByFormAndId(formId, src.id, false);
+	}
+    return false;
+}
+
+function cityDetails(stateId, cityId){
+	var urlData = "stateId="+stateId;
+	jQuery.ajax({
+        type:'post',
+        url:"getAgriCityList",
+        data: urlData,
+        dataType:'json',
+        //headers : {"Accept-Encoding" : "gzip"},
+        success:function(json){
+        	populateList(json.data, 'Select city', cityId, 0);
+        	disableById(cityId, false);
+        },
+        error:function(data){
+        	disableById(cityId, false);
+        },
+        async:false
+    });
+}

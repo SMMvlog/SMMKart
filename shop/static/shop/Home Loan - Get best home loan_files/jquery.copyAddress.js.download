@@ -1,0 +1,374 @@
+var productFormId='';
+if(loanTypeId==1){
+	productFormId='homeloancriteriaform';
+}else if(loanTypeId==2){
+	productFormId='autoloancriteriaform';
+}else if(loanTypeId==3){
+	productFormId='personalloancriteriaform';
+}else if(loanTypeId==4){
+	productFormId='educationloancriteriaform';
+}else if(loanTypeId==15){
+	productFormId='agriloanform';
+}else if(loanTypeId==17){
+	productFormId='creditCardForm';
+
+}
+function initCopyAddress(src, fromAddress){
+	addressLine1 = $("#"+productFormId+" #"+fromAddress[0]).val();
+	addressLine2 = $("#"+productFormId+" #"+fromAddress[1]).val();
+	if(fromAddress[2]!="" && $("#"+productFormId+" #"+fromAddress[2]).val()!=undefined){
+		addressLandmark = $("#"+productFormId+" #"+fromAddress[2]).val();
+	}
+	if(preserveStateClass==""){
+		preserveStateClass= $("#"+productFormId+" #"+fromAddress[3]).attr("class");
+	}
+	if(fromAddress[3]!=""){
+		selectState = parseInt($("#"+productFormId+" #"+fromAddress[3]).val());
+	}
+	if(fromAddress[4]!=""){
+		selectCity = parseInt($("#"+productFormId+" #"+fromAddress[4]).val());
+	}
+	if(fromAddress[5]!="" && $("#"+productFormId+" #"+fromAddress[5]).val()!=undefined){
+		selectBranch = parseInt($("#"+productFormId+" #"+fromAddress[5]).val());
+	}
+	if(fromAddress[6]!="" && $("#"+productFormId+" #"+fromAddress[6]).val()!=undefined){
+		selectDistrict = parseInt($("#"+productFormId+" #"+fromAddress[6]).val());
+	}
+	if(loanTypeId==15){
+		selectVillage = $("#"+productFormId+" #"+fromAddress[7]).val();
+		selectPincode = $("#"+productFormId+" #"+fromAddress[8]).val();
+	}else{
+		selectPincode = $("#"+productFormId+" #"+fromAddress[7]).val();
+	}
+	if(loanTypeId==15){
+		if(addressLine1=="" || selectState==0 || selectDistrict == 0 || selectVillage == ""){
+			if($(src).is(":checked")){
+				$(src).removeAttr('checked');
+				alert("Please fill the mandatory fields for address in "+(loanTypeId==15?"APPLICANT":"PERSONAL")+" DETAILS" );
+				return false;
+			}
+		}
+	}else{
+		var flagCopyAddress = false;
+		if(selectCity==9999999 && selectDistrict==0){
+			flagCopyAddress = true;
+		}else if(addressLine1=="" ||addressLine2=="" || selectState==0 || selectCity == 0){
+			flagCopyAddress = true;
+		}
+		if(flagCopyAddress){
+			if($(src).is(":checked")){
+				$(src).removeAttr('checked');
+				alert("Please fill the mandatory fields for address in APPLICANT DETAILS"  );
+				return false;
+			}
+		}
+	}
+	if(loanTypeId==15){
+			if($(src).is(":checked") && !M.isPIN(selectPincode)){
+				$(src).removeAttr('checked');
+		    	jQuery("#"+productFormId+" #"+fromAddress[8]).addClass('error');
+				alert("Please fill pincode.");
+				return false;
+			}	
+	}else{
+			if($(src).is(":checked") && !M.isPIN(selectPincode)){
+				$(src).removeAttr('checked');
+		    	jQuery("#"+productFormId+" #"+fromAddress[7]).addClass('error');
+				alert("Please enter Applicant Pincode.");
+				return false;
+			}	
+	}
+	return true;
+}
+
+function disabledAddress(fromAddress, flag){
+	if($("#"+productFormId+" #"+fromAddress[0]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[0]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[0]).attr("disabled",true);	
+		}else{
+			$("#"+productFormId+" #"+fromAddress[0]).attr("disabled",false);
+		}
+		
+	}
+	if($("#"+productFormId+" #"+fromAddress[1]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[1]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[1]).attr("disabled",true);	
+		}else{
+			$("#"+productFormId+" #"+fromAddress[1]).attr("disabled",false);
+		}
+	}
+	if(fromAddress[2]!="" && $("#"+productFormId+" #"+fromAddress[2]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[2]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[2]).attr("disabled",true);	
+		}else{
+			$("#"+productFormId+" #"+fromAddress[2]).attr("disabled",false);
+		}
+	}
+	if(fromAddress[3]!="" && $("#"+productFormId+" #"+fromAddress[3]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[3]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[3]).attr("disabled",true);	
+		}else{
+			if(preserveStateClass!=""){
+				$("#"+productFormId+" #"+fromAddress[3]).addClass(preserveStateClass);
+				if(preserveStateClass=="form-control disabledFields"){
+					$("#"+productFormId+" #"+fromAddress[3]).attr("disabled",true);
+				}else{
+					$("#"+productFormId+" #"+fromAddress[3]).attr("disabled",false);
+				}
+			}else{
+				$("#"+productFormId+" #"+fromAddress[3]).attr("disabled",false);
+			}
+		}
+	}
+	if(fromAddress[4]!="" && $("#"+productFormId+" #"+fromAddress[4]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[4]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[4]).attr("disabled",true);	
+		}else{
+			if(preserveStateClass!=""){
+				$("#"+productFormId+" #"+fromAddress[4]).addClass(preserveStateClass);
+				if(preserveStateClass=="form-control disabledFields"){
+					$("#"+productFormId+" #"+fromAddress[4]).attr("disabled",true);
+				}else{
+					$("#"+productFormId+" #"+fromAddress[4]).attr("disabled",false);
+				}
+			}else{
+				$("#"+productFormId+" #"+fromAddress[4]).attr("disabled",false);
+			}
+		}
+	}
+	if(fromAddress[5]!="" && $("#"+productFormId+" #"+fromAddress[5]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[5]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[5]).attr("disabled",true);	
+		}else{
+			if(preserveStateClass!=""){
+				$("#"+productFormId+" #"+fromAddress[5]).addClass(preserveStateClass);
+				$("#"+productFormId+" #"+fromAddress[5]).attr("disabled",true);
+			}else{
+				$("#"+productFormId+" #"+fromAddress[5]).attr("disabled",false);
+			}
+		}
+	}
+	if(fromAddress[6]!="" && $("#"+productFormId+" #"+fromAddress[6]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[6]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[6]).attr("disabled",true);	
+		}else{
+			if(preserveStateClass!=""){
+				$("#"+productFormId+" #"+fromAddress[6]).addClass(preserveStateClass);
+				if(loanTypeId==15){
+					$("#"+productFormId+" #"+fromAddress[6]).attr("disabled",false);
+				}else{
+					$("#"+productFormId+" #"+fromAddress[6]).attr("disabled",false);
+				}
+			}else{
+				$("#"+productFormId+" #"+fromAddress[6]).attr("disabled",false);
+			}
+		}
+	}
+	if(fromAddress[7]!="" && $("#"+productFormId+" #"+fromAddress[7]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[7]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[7]).attr("disabled",true);	
+		}else{
+			$("#"+productFormId+" #"+fromAddress[7]).attr("disabled",false);
+		}
+	}
+	if(fromAddress[8]!="" && $("#"+productFormId+" #"+fromAddress[8]).val()!=undefined){
+		if(flag){
+			$("#"+productFormId+" #"+fromAddress[8]).addClass('disabledFields');
+			$("#"+productFormId+" #"+fromAddress[8]).attr("disabled",true);	
+		}else{
+			$("#"+productFormId+" #"+fromAddress[8]).attr("disabled",false);
+		}
+	}
+	return true;
+}
+
+function copyAddress(toAddress, fromAddress){
+	if($("#"+productFormId+" #"+toAddress[0]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[0]).val()!=undefined){
+		$("#"+productFormId+" #"+toAddress[0]).val($("#"+productFormId+" #"+fromAddress[0]).val()).addClass('disabledFields');
+		$("#"+productFormId+" #"+toAddress[0]).attr("disabled",true);
+		$("#"+productFormId+" #"+toAddress[0]).removeClass('error').next('span').remove();
+	}
+	if($("#"+productFormId+" #"+toAddress[1]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[1]).val()!=undefined){
+		$("#"+productFormId+" #"+toAddress[1]).val($("#"+productFormId+" #"+fromAddress[1]).val()).addClass('disabledFields');
+		$("#"+productFormId+" #"+toAddress[1]).attr("disabled",true);
+		$("#"+productFormId+" #"+toAddress[1]).removeClass('error').next('span').remove();
+	}
+	if(toAddress[2]!="" && fromAddress[2]!=""){
+		if($("#"+productFormId+" #"+toAddress[2]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[2]).val()!=undefined){
+			$("#"+productFormId+" #"+toAddress[2]).val($("#"+productFormId+" #"+fromAddress[2]).val()).addClass('disabledFields');
+			$("#"+productFormId+" #"+toAddress[2]).attr("disabled",true);
+			$("#"+productFormId+" #"+toAddress[2]).removeClass('error').next('span').remove();
+		}
+	}
+	if(toAddress[3]!="" && fromAddress[3]!=""){
+		if($("#"+productFormId+" #"+toAddress[3]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[3]).val()!=undefined){
+			$("select#"+toAddress[3]).empty();
+			$("select#"+toAddress[3]).append($("select#"+fromAddress[3]+" > option").clone());
+			$("select#"+toAddress[3]+" option[value='"+selectState+"']").attr('selected','selected');
+			$("select#"+toAddress[3]).addClass('disabledFields');
+			$("select#"+toAddress[3]).attr("disabled", true);
+			$("select#"+toAddress[3]).removeClass('error').parent().next('span').remove();
+//			$("select#"+toAddress[3]).closest('div').css('background', 'url('+BANK_IMAGE_FOLDER_NEWUI+'/drop-down-arrow.png) no-repeat 100% top')
+		}
+	}
+	if(toAddress[4]!="" && fromAddress[4]!=""){
+		if($("#"+productFormId+" #"+toAddress[4]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[4]).val()!=undefined){
+			$("select#"+toAddress[4]).empty();
+			$("select#"+toAddress[4]).append($("select#"+fromAddress[4]+" > option").clone());
+			$("select#"+toAddress[4]+" option[value='"+selectCity+"']").attr('selected','selected');
+			$("select#"+toAddress[4]).addClass('disabledFields');
+			$("select#"+toAddress[4]).attr("disabled", true);
+			$("select#"+toAddress[4]).removeClass('error').parent().next('span').remove();
+//			$("select#"+toAddress[4]).closest('div').css('background', 'url('+BANK_IMAGE_FOLDER_NEWUI+'/drop-down-arrow.png) no-repeat 100% top')
+		}
+	}
+	if(toAddress[5]!="" && fromAddress[5]!=""){
+		if($("#"+productFormId+" #"+toAddress[5]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[5]).val()!=undefined){
+			$("select#"+toAddress[5]).empty();
+			$("select#"+toAddress[5]).append($("select#"+fromAddress[5]+" > option").clone());
+			$("select#"+toAddress[5]).addClass('disabledFields');
+			$("select#"+toAddress[5]).attr("disabled", true);
+			$("select#"+toAddress[5]).removeClass('error').parent().next('span').remove();
+//			$("select#"+toAddress[5]).closest('div').css('background', 'url('+BANK_IMAGE_FOLDER_NEWUI+'/drop-down-arrow.png) no-repeat 100% top')
+		}
+	}
+	if(toAddress[6]!="" && fromAddress[6]!=""){
+		if($("#"+productFormId+" #"+toAddress[6]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[6]).val()==undefined){
+			$("#div"+toAddress[6]).remove();
+		}
+	}
+	if(toAddress[6]!="" && fromAddress[6]!=""){
+		if($("#"+productFormId+" #"+toAddress[6]).val()==undefined && $("#"+productFormId+" #"+fromAddress[6]).val()!=undefined){
+			$("#"+productFormId+" #"+toAddress[9]).html('');
+			$("#"+productFormId+" #"+toAddress[9]).html($('#html'+toAddress[6]).html());
+		}
+	}
+	if(toAddress[6]!="" && fromAddress[6]!=""){
+		if($("#"+productFormId+" #"+toAddress[6]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[6]).val()!=undefined){
+			$("#"+productFormId+" #"+toAddress[9]).html('');
+			$("#"+productFormId+" #"+toAddress[9]).html($('#html'+toAddress[6]).html());
+			$("select#"+toAddress[6]).append($("select#"+fromAddress[6]+" > option").clone());
+			$("select#"+toAddress[6]).val($("#"+fromAddress[6]).val()).attr('selected','selected');
+			$("select#"+toAddress[6]).addClass('disabledFields');
+			$("select#"+toAddress[6]).attr("disabled", true);
+			$("select#"+toAddress[6]).removeClass('error').parent().next('span').remove();
+//			$("select#"+toAddress[6]).closest('div').css('background', 'url('+BANK_IMAGE_FOLDER_NEWUI+'/drop-down-arrow.png) no-repeat 100% top')
+		}
+	}
+	if(toAddress[7]!="" && fromAddress[7]!=""){
+		if($("#"+productFormId+" #"+toAddress[7]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[7]).val()!=undefined){
+			$("#"+productFormId+" #"+toAddress[7]).val($("#"+productFormId+" #"+fromAddress[7]).val()).addClass('disabledFields');
+			$("#"+productFormId+" #"+toAddress[7]).attr("disabled",true);
+			$("#"+productFormId+" #"+toAddress[7]).removeClass('error').next('span').remove();
+		}
+	}
+	if(toAddress[8]!="" && fromAddress[8]!=""){
+		if($("#"+productFormId+" #"+toAddress[8]).val()!=undefined && $("#"+productFormId+" #"+fromAddress[8]).val()!=undefined){
+			$("#"+productFormId+" #"+toAddress[8]).val($("#"+productFormId+" #"+fromAddress[8]).val()).addClass('disabledFields');
+			$("#"+productFormId+" #"+toAddress[8]).attr("disabled",true);
+			$("#"+productFormId+" #"+toAddress[8]).removeClass('error').next('span').remove();
+		}
+	}
+	
+}
+
+function emptyAddress(toAddress, fromAddress, enableCheckbox){
+	if(enableCheckbox!=undefined){
+		var readyToEnable=false;
+		for(var index=0; index <= enableCheckbox.length; index++){
+			if($("#"+productFormId+" #"+enableCheckbox[index]).val()!=undefined){
+				if($("#"+productFormId+" #"+enableCheckbox[index]).is(":checked")){
+					readyToEnable=false;
+					break;
+				}else{
+					readyToEnable=true;
+				}
+			}
+		}
+		if(readyToEnable){
+			disabledAddress(fromAddress, false);
+		}
+	}
+	if($("#"+productFormId+" #"+toAddress[0]).val()!=undefined){
+		$("#"+productFormId+" #"+toAddress[0]).attr("disabled",false);
+		$("#"+productFormId+" #"+toAddress[0]).removeClass('error').next('span').remove();
+		$("#"+productFormId+" #"+toAddress[0]).val('');
+	}
+	if($("#"+productFormId+" #"+toAddress[1]).val()!=undefined){
+		$("#"+productFormId+" #"+toAddress[1]).attr("disabled",false);
+		$("#"+productFormId+" #"+toAddress[1]).removeClass('error').next('span').remove();
+		$("#"+productFormId+" #"+toAddress[1]).val('');
+	}
+	if(toAddress[2]!=""){
+		if($("#"+productFormId+" #"+toAddress[2]).val()!=undefined){
+			$("#"+productFormId+" #"+toAddress[2]).attr("disabled",false);
+			$("#"+productFormId+" #"+toAddress[2]).removeClass('error').next('span').remove();
+			$("#"+productFormId+" #"+toAddress[2]).val('');
+		}
+	}
+	if(toAddress[3]!=""){
+		if($("#"+productFormId+" #"+toAddress[3]).val()!=undefined){
+			$("select#"+toAddress[3]).attr("disabled",false);
+			$("select#"+toAddress[3]).val(0);
+			$("select#"+toAddress[3]).removeClass('error').next('span').remove();
+		}
+	}
+	if(toAddress[4]!=""){
+		if($("#"+productFormId+" #"+toAddress[4]).val()!=undefined){
+			$("select#"+toAddress[4]).empty();
+			$("select#"+toAddress[4]).append('<option value="0">Select city<\option>');
+			$("select#"+toAddress[4]).val(0);
+			//$("select#"+toAddress[4]).prop('disabled',false);
+			$("select#"+toAddress[4]).removeClass('error').next('span').remove();
+		}
+	}
+	if(toAddress[5]!=""){
+		if($("#"+productFormId+" #"+toAddress[5]).val()!=undefined){
+			$("select#"+toAddress[5]).val(0);
+			$("#"+productFormId+" #"+toAddress[5]).html('');
+			$("select#"+toAddress[5]).removeClass('error').next('span').remove();
+		}
+	}
+	if(toAddress[6]!=""){
+		if($("#"+productFormId+" #"+toAddress[6]).val()!=undefined){
+			if(loanTypeId==15){
+				$("select#"+toAddress[6]).empty();
+				$("select#"+toAddress[6]).append('<option value="0">Select district<\option>');
+				$("select#"+toAddress[6]).val(0);
+				if(toAddress[6]=="appResidentDistrictId"){
+					$("select#"+toAddress[6]).attr("disabled",false);
+				}else{
+					$("select#"+toAddress[6]).attr("disabled",true);
+				}
+				$("select#"+toAddress[6]).removeClass('error').next('span').remove();
+			}else{
+				$("select#"+toAddress[6]).prop('disabled',false);
+				$("#"+productFormId+" #"+toAddress[9]).html('');
+			}
+		}
+	}
+	if(toAddress[7]!=""){
+		if($("#"+productFormId+" #"+toAddress[7]).val()!=undefined){
+			$("#"+toAddress[7]).val("");
+			$("#"+productFormId+" #"+toAddress[7]).attr("disabled",false);
+			$("#"+productFormId+" #"+toAddress[7]).removeClass('error').next('span').remove();
+			$("#"+productFormId+" #"+toAddress[7]).val('');
+		}
+	}
+	if(toAddress[8]!=""){
+		if($("#"+productFormId+" #"+toAddress[8]).val()!=undefined){
+			$("#"+toAddress[8]).val("");
+			$("#"+productFormId+" #"+toAddress[8]).attr("disabled",false);
+			$("#"+productFormId+" #"+toAddress[8]).removeClass('error').next('span').remove();
+			$("#"+productFormId+" #"+toAddress[8]).val('');
+		}
+	}
+}
